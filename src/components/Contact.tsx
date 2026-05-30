@@ -39,8 +39,12 @@ export default function Contact() {
     setIsSending(true);
 
     setTimeout(() => {
+      const secureId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : Math.random().toString(36).substring(2, 11) + Math.random().toString(36).substring(2, 11);
+
       const newInquiry: ContactInquiry = {
-        id: crypto.randomUUID(),
+        id: secureId,
         name: formData.name,
         email: formData.email,
         subject: formData.subject,

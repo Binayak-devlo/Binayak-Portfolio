@@ -5,9 +5,10 @@ import { PERSONAL_DETAILS } from "../data";
 
 interface NavbarProps {
   onOpenQuickContact: () => void;
+  onOpenSandbox: () => void;
 }
 
-export default function Navbar({ onOpenQuickContact }: NavbarProps) {
+export default function Navbar({ onOpenQuickContact, onOpenSandbox }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
@@ -115,8 +116,15 @@ export default function Navbar({ onOpenQuickContact }: NavbarProps) {
               );
             })}
             <button
+              onClick={onOpenSandbox}
+              className="ml-2 flex items-center gap-1.5 px-3 py-2 rounded-lg font-display text-sm font-medium text-amber-400 bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 hover:text-amber-300 transition-all duration-200 cursor-pointer"
+            >
+              <Cpu className="h-4 w-4 text-amber-400 animate-pulse shrink-0" />
+              Sandbox
+            </button>
+            <button
               onClick={onOpenQuickContact}
-              className="ml-4 flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-display text-sm font-semibold shadow-md shadow-emerald-600/20 transition-all duration-200 cursor-pointer"
+              className="ml-2 flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-display text-sm font-semibold shadow-md shadow-emerald-600/20 transition-all duration-200 cursor-pointer"
             >
               <Mail className="h-4 w-4" />
               Connect
@@ -171,6 +179,16 @@ export default function Navbar({ onOpenQuickContact }: NavbarProps) {
                   </button>
                 );
               })}
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  onOpenSandbox();
+                }}
+                className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-left font-display text-base font-medium text-amber-400 hover:bg-slate-800/30 cursor-pointer"
+              >
+                <Cpu className="h-5 w-5 text-amber-400 animate-pulse shrink-0" />
+                <span>Diagnostics Sandbox</span>
+              </button>
               <div className="pt-4 border-t border-slate-800/60 flex flex-col gap-2.5 px-4">
                 <div className="flex items-center gap-2 text-xs text-slate-400">
                   <Mail className="h-3.5 w-3.5 text-emerald-400" />

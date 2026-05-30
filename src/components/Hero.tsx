@@ -1,13 +1,26 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import { Play, Sparkles, Terminal, Copy, Check, ChevronRight, Server, Database, ShieldAlert, Cpu } from "lucide-react";
 import { PERSONAL_DETAILS } from "../data";
 
-export default function Hero() {
+interface HeroProps {
+  onOpenSandbox: () => void;
+}
+
+export default function Hero({ onOpenSandbox }: HeroProps) {
   const [copied, setCopied] = useState(false);
   const [auditlogs, setAuditLogs] = useState<string[]>([]);
   const [isAuditing, setIsAuditing] = useState(false);
   const [auditProgress, setAuditProgress] = useState(0);
+  const auditIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (auditIntervalRef.current) {
+        clearInterval(auditIntervalRef.current);
+      }
+    };
+  }, []);
 
   const codeString = `{
   "engineer": "${PERSONAL_DETAILS.name}",
@@ -40,14 +53,24 @@ export default function Hero() {
       "[COMPLETED] All tests ran. 0 failures. Binayak Patri is ready to build!"
     ];
 
+    if (auditIntervalRef.current) {
+      clearInterval(auditIntervalRef.current);
+    }
+
     let count = 0;
-    const interval = setInterval(() => {
+    auditIntervalRef.current = setInterval(() => {
       if (count < diagnostics.length) {
-        setAuditLogs((prev) => [...prev, diagnostics[count]]);
+        const nextLog = diagnostics[count];
+        if (nextLog) {
+          setAuditLogs((prev) => [...prev, nextLog]);
+        }
         setAuditProgress(((count + 1) / diagnostics.length) * 100);
         count++;
       } else {
-        clearInterval(interval);
+        if (auditIntervalRef.current) {
+          clearInterval(auditIntervalRef.current);
+          auditIntervalRef.current = null;
+        }
         setIsAuditing(false);
       }
     }, 750);
@@ -187,18 +210,30 @@ export default function Hero() {
                     <Terminal className="h-3.5 w-3.5 text-emerald-400" />
                     <span>Diagnostics Live Monitor</span>
                   </div>
-                  <button
-                    onClick={handleRunSystemAudit}
-                    disabled={isAuditing}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono text-[10px] font-semibold tracking-wide uppercase transition-all duration-200 cursor-pointer ${
-                      isAuditing
-                        ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0"
-                        : "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/40 shrink-0"
-                    }`}
-                  >
-                    <Play className={`h-3 w-3 ${isAuditing ? "animate-pulse" : ""}`} />
-                    {isAuditing ? "Running..." : "Test Sandbox"}
-                  </button>
+                  <div className="flex gap-1.5 shrink-0">
+                    <button
+                      onClick={handleRunSystemAudit}
+                      disabled={isAuditing}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono text-[10px] font-semibold tracking-wide uppercase transition-all duration-200 cursor-pointer ${
+                        isAuditing
+                          ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                          : "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/40"
+                      }`}
+                    >
+                      <Play className={`h-3 w-3 ${isAuditing ? "animate-pulse" : ""}`} />
+                      {isAuditing ? "Running..." : "Test Sandbox"}
+                    </button>
+                    {!isAuditing && (
+                      <button
+                        onClick={onOpenSandbox}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono text-[10px] font-semibold tracking-wide uppercase bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 hover:border-amber-500/30 transition-all duration-200 cursor-pointer"
+                        title="Open interactive sandbox dashboard"
+                      >
+                        <Cpu className="h-3 w-3 animate-pulse" />
+                        Launch UI
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {isAuditing && (
@@ -220,8 +255,9 @@ export default function Hero() {
                     </div>
                   ) : (
                     auditlogs.map((log, index) => {
-                      const isComplete = log.includes("[COMPLETED]");
-                      const isInfo = log.includes("[INFO]");
+                      if (!log) return null;
+                      const isComplete = typeof log === "string" && log.includes("[COMPLETED]");
+                      const isInfo = typeof log === "string" && log.includes("[INFO]");
                       return (
                         <div key={index} className={`flex tracking-tight select-none mt-1 ${isComplete ? "text-emerald-400 font-bold" : isInfo ? "text-blue-400" : "text-slate-300"}`}>
                           <span className="text-slate-600 mr-2">$</span>

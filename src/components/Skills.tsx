@@ -1,7 +1,54 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { SKILL_CATEGORIES } from "../data";
-import { Code, BookOpen, Database, Hammer, Milestone, Briefcase, HelpCircle, CheckCircle } from "lucide-react";
+import { 
+  Code, BookOpen, Database, Hammer, Milestone, Briefcase, HelpCircle, 
+  CheckCircle, Webhook, Monitor, RefreshCw, Brain 
+} from "lucide-react";
+
+// Register icons with Devicon styles or Lucide fallback icons for high-end design
+const SKILL_ICONS: Record<string, { type: "devicon" | "lucide"; value: string | React.ComponentType<any> }> = {
+  "JavaScript": { type: "devicon", value: "devicon-javascript-plain colored" },
+  "Java": { type: "devicon", value: "devicon-java-plain colored" },
+  "C": { type: "devicon", value: "devicon-c-plain colored" },
+  "C++": { type: "devicon", value: "devicon-cplusplus-plain colored" },
+  "HTML": { type: "devicon", value: "devicon-html5-plain colored" },
+  "CSS": { type: "devicon", value: "devicon-css3-plain colored" },
+  "Python": { type: "devicon", value: "devicon-python-plain colored" },
+  "React.js": { type: "devicon", value: "devicon-react-original colored" },
+  "Tailwind CSS": { type: "devicon", value: "devicon-tailwindcss-original colored" },
+  "Next.js": { type: "devicon", value: "devicon-nextjs-plain text-slate-200" },
+  "Framer Motion": { type: "devicon", value: "devicon-framer-original text-pink-400" },
+  "HTML5": { type: "devicon", value: "devicon-html5-plain colored" },
+  "CSS3": { type: "devicon", value: "devicon-css3-plain colored" },
+  "Responsive Design": { type: "lucide", value: Monitor },
+  "Node.js": { type: "devicon", value: "devicon-nodejs-plain colored" },
+  "Express.js": { type: "devicon", value: "devicon-express-original text-slate-200" },
+  "RESTful APIs": { type: "lucide", value: Webhook },
+  "MySQL": { type: "devicon", value: "devicon-mysql-plain colored" },
+  "MongoDB": { type: "devicon", value: "devicon-mongodb-plain colored" },
+  "Git": { type: "devicon", value: "devicon-git-plain colored" },
+  "GitHub": { type: "devicon", value: "devicon-github-original text-slate-100" },
+  "Appwrite": { type: "devicon", value: "devicon-appwrite-plain colored" },
+  "Agile Methodologies": { type: "lucide", value: RefreshCw },
+  "Quick Learner": { type: "lucide", value: Brain },
+  "Flask": { type: "devicon", value: "devicon-flask-original text-slate-200" }
+};
+
+// Elegant icon rendering helper supporting both standards
+function SkillIcon({ name, className = "h-5 w-5" }: { name: string; className?: string }) {
+  const iconData = SKILL_ICONS[name];
+  if (!iconData) {
+    return <Code className={`${className} text-emerald-400`} />;
+  }
+
+  if (iconData.type === "devicon") {
+    return <i className={`${iconData.value} ${className} flex items-center justify-center`} style={{ fontSize: "1.25rem", lineHeight: 1 }} />;
+  }
+
+  const LucideIcon = iconData.value as React.ComponentType<any>;
+  return <LucideIcon className={`${className} text-emerald-400`} />;
+}
 
 // Map skills to CV-proven context to show genuine depth without hallucination!
 const SKILL_CONTEXTS: Record<string, { usedIn: string; details: string }> = {
@@ -161,14 +208,16 @@ export default function Skills() {
                         <button
                           key={skill}
                           onClick={() => setSelectedSkill(skill)}
-                          className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-sans font-semibold transition-all cursor-pointer ${
+                          className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-sans font-semibold transition-all cursor-pointer group ${
                             isSelected
                               ? "bg-emerald-400/10 border border-emerald-400/20 text-emerald-400 shadow-sm"
                               : "bg-slate-950/60 border border-slate-800/60 text-slate-300 hover:border-slate-700 hover:text-white"
                           }`}
                         >
-                          <CheckCircle className={`h-4 w-4 shrink-0 transition-opacity ${isSelected ? "opacity-100 text-emerald-400" : "opacity-30"}`} />
-                          {skill}
+                          <div className={`transition-all duration-300 ${isSelected ? "scale-105" : "group-hover:scale-110"}`}>
+                            <SkillIcon name={skill} className="h-5 w-5 shrink-0" />
+                          </div>
+                          <span>{skill}</span>
                         </button>
                       );
                     })}
@@ -181,9 +230,15 @@ export default function Skills() {
             <div className="md:col-span-5 bg-gradient-to-br from-emerald-950/10 to-slate-950/40 rounded-2xl border border-slate-800/80 p-6 min-h-[320px] flex flex-col justify-between">
               <div>
                 <span className="text-[10px] uppercase font-mono tracking-wider text-slate-500 block mb-2">Proven Track Record</span>
-                <h3 className="font-display font-bold text-lg text-white mb-4">
-                  {selectedSkill ? selectedSkill : "Select a skill"}
-                </h3>
+                
+                <div className="flex items-center gap-3 mb-5 pb-3 border-b border-slate-900/60">
+                  <div className="p-2 bg-slate-950/90 border border-slate-800/80 rounded-xl flex items-center justify-center shadow-inner">
+                    {selectedSkill && <SkillIcon name={selectedSkill} className="h-6 w-6 shrink-0" />}
+                  </div>
+                  <h3 className="font-display font-bold text-base sm:text-lg text-white">
+                    {selectedSkill ? selectedSkill : "Select a skill"}
+                  </h3>
+                </div>
 
                 <AnimatePresence mode="wait">
                   {selectedSkill && SKILL_CONTEXTS[selectedSkill] ? (

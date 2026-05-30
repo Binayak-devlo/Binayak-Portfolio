@@ -14,10 +14,12 @@ import Experience from "./components/Experience";
 import Education from "./components/Education";
 import Contact from "./components/Contact";
 import GalaxyBackground from "./components/GalaxyBackground";
+import Sandbox from "./components/Sandbox";
 import { PERSONAL_DETAILS } from "./data";
 
 export default function App() {
   const [isQuickContactOpen, setIsQuickContactOpen] = useState(false);
+  const [isSandboxOpen, setIsSandboxOpen] = useState(false);
   const [copiedText, setCopiedText] = useState<string | null>(null);
 
   const copyToClipboard = (text: string, label: string) => {
@@ -32,12 +34,12 @@ export default function App() {
       <GalaxyBackground />
 
       {/* Global Header & Nav bar */}
-      <Navbar onOpenQuickContact={() => setIsQuickContactOpen(true)} />
+      <Navbar onOpenQuickContact={() => setIsQuickContactOpen(true)} onOpenSandbox={() => setIsSandboxOpen(true)} />
 
       {/* Structured Sections */}
       <main className="relative">
         {/* Core Profile Hero */}
-        <Hero />
+        <Hero onOpenSandbox={() => setIsSandboxOpen(true)} />
 
         {/* Brand Summary Section */}
         <section id="about" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-900">
@@ -184,6 +186,29 @@ export default function App() {
                   Message Form
                 </button>
               </div>
+            </motion.div>
+          </div>
+        )}
+
+        {isSandboxOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-slate-950/80 backdrop-blur-md"
+              onClick={() => setIsSandboxOpen(false)}
+            />
+
+            {/* Panel */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="relative w-full max-w-4xl bg-[#030712]/95 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl z-10 p-1 max-h-[92vh] overflow-y-auto"
+            >
+              <Sandbox onClose={() => setIsSandboxOpen(false)} />
             </motion.div>
           </div>
         )}
